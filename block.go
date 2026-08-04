@@ -805,15 +805,32 @@ func startSetextHeading(p *parser, container *Node) (blockStartResult, *Node) {
 		return noMatch, container
 	}
 	p.closeUnmatchedBlocks()
-	// The container is a Paragraph with non-blank content (blank paragraphs are
-	// never created), so convert it to a setext heading.
+	// Resolve any leading link reference definitions first: the paragraph text
+	// that becomes the heading is what remains after them. A paragraph that was
+	// nothing but reference definitions is not a setext heading — its underline
+	// line is then processed as ordinary text.
+	content := container.content
+	hasRefs := false
+	for len(content) > 0 && content[0] == '[' {
+		consumed := p.parseReferenceDef(content)
+		if consumed <= 0 {
+			break
+		}
+		content = content[consumed:]
+		hasRefs = true
+	}
+	container.content = content
+	if hasRefs && isBlankAll(content) {
+		return noMatch, container
+	}
+	// Convert the paragraph's remaining content to a setext heading.
 	heading := newNode(Heading)
 	if rest[0] == '=' {
 		heading.Level = 1
 	} else {
 		heading.Level = 2
 	}
-	heading.content = container.content
+	heading.content = content
 	container.insertAfter(heading)
 	container.unlink()
 	p.tip = heading

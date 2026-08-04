@@ -146,6 +146,21 @@ func TestSetextFirstLine(t *testing.T) {
 	eq(t, "===\n", nil, "<p>===</p>\n")
 }
 
+// TestSetextLeadingReferenceDefs covers the setext-underline matcher resolving
+// leading link reference definitions before forming the heading.
+func TestSetextLeadingReferenceDefs(t *testing.T) {
+	// A leading '[' that is not a valid reference definition breaks the strip
+	// loop and stays as heading text (exercises the consumed<=0 branch).
+	eq(t, "[foo] bar\n===\n", nil, "<h1>[foo] bar</h1>\n")
+	// A valid definition is stripped; the remaining text becomes the heading.
+	eq(t, "[foo]: /url\nbar\n===\n[foo]\n", nil,
+		"<h1>bar</h1>\n<p><a href=\"/url\">foo</a></p>\n")
+	// A paragraph of only reference definitions is not a heading; its underline
+	// is then ordinary text.
+	eq(t, "[foo]: /url\n===\n[foo]\n", nil,
+		"<p>===\n<a href=\"/url\">foo</a></p>\n")
+}
+
 // TestStripTaskMarkerLeadingSpace covers the leading-space skip in
 // stripTaskMarker directly (block parsing usually trims this).
 func TestStripTaskMarkerLeadingSpace(t *testing.T) {
