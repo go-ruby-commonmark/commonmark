@@ -6,6 +6,7 @@
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
 [![Go](https://img.shields.io/badge/go-1.26.4%2B-00ADD8)](https://go.dev/dl/)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-1a7f37)](#tests--coverage)
+[![CommonMark spec v0.31.2](https://img.shields.io/badge/CommonMark_spec_v0.31.2-652%2F652-1a7f37)](https://spec.commonmark.org/0.31.2/)
 
 **A pure-Go (no cgo) CommonMark renderer** — the deterministic,
 interpreter-independent core that backs Ruby's
@@ -21,13 +22,11 @@ It is the Markdown backend for
 of [go-ruby-kramdown](https://github.com/go-ruby-kramdown/kramdown) and
 [go-ruby-liquid](https://github.com/go-ruby-liquid/liquid).
 
-> **Conformance is honest, not aspirational.** The parser is validated against the
-> upstream `spec.txt` conformance suite: **593 / 652 examples pass** today. The
-> remaining failures are concentrated in a handful of hard emphasis-nesting edge
-> cases, lazy list-item continuation, and the spec's raw-HTML-block corner cases
-> (many of which the reference renderer only produces in "unsafe" mode). Every
-> spec example is embedded and run on every CI lane; the exact pass rate is
-> asserted in the test suite, so it can only go up.
+> **Spec-complete.** The parser is validated against the upstream `spec.txt`
+> conformance suite and passes **all 652 / 652 CommonMark spec v0.31.2 examples,
+> byte-exact** (100%, 0 known gaps). Every spec example is embedded and run on
+> every CI lane, and the pass rate is asserted by a ratchet test that fails if any
+> example regresses — so full conformance can only be held, never quietly lost.
 
 ## Features
 
@@ -114,8 +113,9 @@ type Options struct {
 ## Tests & coverage
 
 The suite embeds the upstream CommonMark `spec.txt` and runs all 652 examples on
-every lane (reporting the honest pass rate), alongside targeted block/inline/GFM
-and error-path tests that hold statement coverage at **100%** — so the qemu
+every lane — **all 652/652 pass, byte-exact** (a ratchet test fails on any
+regression) — alongside targeted block/inline/GFM and error-path tests that hold
+statement coverage at **100%** — so the qemu
 cross-arch and Windows lanes pass the coverage gate. The host lane keeps cgo
 enabled so `-race` runs; the six architecture lanes build and test with
 `CGO_ENABLED=0` to prove the pure-Go build.
