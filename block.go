@@ -480,6 +480,14 @@ func (p *parser) addLine() {
 // finalize closes a block, running any block-specific post-processing.
 func (p *parser) finalize(block *Node, lineNumber int) {
 	above := block.Parent
+	// Idempotent: a block may be finalized during line processing (e.g. an HTML
+	// block reaching its close condition) and then revisited by the end-of-parse
+	// cleanup because p.tip still points at it. Re-finalizing must not clobber the
+	// already-computed Literal/content, so a closed block only walks p.tip upward.
+	if !block.open {
+		p.tip = above
+		return
+	}
 	block.open = false
 
 	switch block.Type {
