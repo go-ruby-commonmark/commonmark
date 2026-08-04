@@ -177,10 +177,11 @@ func (p *parser) incorporateLine(line []byte) {
 		}
 	}
 
-	// Phase 3: append remaining text to the current block.
-	p.findNextNonspace()
-	p.blank = p.nextNonspace >= len(p.line)
-
+	// Phase 3: append remaining text to the current block. p.blank is carried
+	// from the block-structure descent (phases 1-2) and is NOT recomputed here:
+	// a leaf that consumed its whole line (e.g. an ATX heading) leaves the offset
+	// at end-of-line, and recomputing would wrongly report the line as blank and
+	// loosen an enclosing list.
 	if !p.allClosed && !p.blank && p.tip.Type == Paragraph {
 		// Lazy continuation of a paragraph.
 		p.addLine()
@@ -893,6 +894,11 @@ func listsMatch(a, b *listData) bool {
 // padding. It returns a fresh listData describing the item and whether a marker
 // was found.
 func (p *parser) parseListMarker(container *Node) (*listData, bool) {
+	// A marker indented four or more columns past the current container's
+	// content is code / lazy continuation, never a list marker.
+	if p.indent >= codeIndent {
+		return nil, false
+	}
 	rest := p.line[p.nextNonspace:]
 	ld := &listData{markerOffset: p.indent}
 

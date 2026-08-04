@@ -94,10 +94,12 @@ func unescapeArrows(s string) string {
 // opener (e.g. ***foo*** -> <em><strong>). Then to 649/652 (99.54%) after the
 // setext-underline matcher resolves leading link reference definitions and
 // declines to form a heading from a paragraph that was only definitions (215,
-// 216). Residual gaps: list-marker-indent edge cases (300, 312, 313).
-var specKnownFailing = map[int]bool{
-	300: true, 312: true, 313: true,
-}
+// 216). Finally to 652/652 (100.00%) after two list-marker-indent fixes: a
+// marker indented four or more columns is code / lazy continuation, not a list
+// item (312, 313), and p.blank is no longer recomputed in phase 3 so an ATX
+// heading that consumes its whole line does not spuriously loosen its list
+// (300). The renderer now matches the reference on the entire corpus.
+var specKnownFailing = map[int]bool{}
 
 // TestSpecConformance is the differential conformance gate against the canonical
 // CommonMark spec.txt corpus (github.com/commonmark/commonmark-spec) — the same
