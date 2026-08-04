@@ -485,8 +485,7 @@ func (s *subject) processEmphasis(stackBottom *delimiter) {
 			continue
 		}
 
-		s.combineEmphasis(opener, closer)
-		closer = closer.next
+		closer = s.combineEmphasis(opener, closer)
 	}
 
 	// Remove all delimiters above stackBottom.
@@ -513,8 +512,11 @@ func (s *subject) bottomDelimiter() *delimiter {
 }
 
 // combineEmphasis wraps the content between opener and closer in an Emphasis or
-// Strong node, removing consumed delimiters.
-func (s *subject) combineEmphasis(opener, closer *delimiter) {
+// Strong node, removing consumed delimiters. It returns the closer to continue
+// processing from: the same closer when it still carries delimiters (so it can
+// match a further opener, e.g. `***foo***` → strong inside em), otherwise the
+// following delimiter once the exhausted closer is removed.
+func (s *subject) combineEmphasis(opener, closer *delimiter) *delimiter {
 	var useDelims int
 	if closer.char == '~' {
 		// Strikethrough is single-delimiter.
@@ -565,8 +567,12 @@ func (s *subject) combineEmphasis(opener, closer *delimiter) {
 	}
 	if closer.numdelims == 0 {
 		closerNode.unlink()
+		next := closer.next
 		s.removeDelimiter(closer)
+		return next
 	}
+	// The closer still has delimiters: keep it to match a further opener.
+	return closer
 }
 
 func (s *subject) removeDelimitersBetween(bottom, top *delimiter) {

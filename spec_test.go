@@ -88,12 +88,13 @@ func unescapeArrows(s string) string {
 // 2026-08-04 to 621/652 (95.25%) after fixing loose/tight list detection
 // (lastLineBlank propagation up the ancestor chain), then to 635/652 (97.39%)
 // after making block finalize idempotent so a type-1..5 HTML block closed
-// mid-document is not re-finalized (which had clobbered its Literal). Residual
-// gaps concentrate in Emphasis (12/132), plus a few list-indent edge cases.
+// mid-document is not re-finalized (which had clobbered its Literal), then to
+// 647/652 (99.23%) after fixing delimiter-run emphasis: a closer that still
+// carries delimiters after forming a span is now reused to match a further
+// opener (e.g. ***foo*** -> <em><strong>). Residual gaps: link-reference
+// normalization (215, 216) and list-marker-indent edge cases (300, 312, 313).
 var specKnownFailing = map[int]bool{
-	215: true, 216: true, 300: true, 312: true, 313: true, 409: true, 414: true,
-	415: true, 416: true, 417: true, 427: true, 431: true, 464: true, 465: true,
-	466: true, 467: true, 468: true,
+	215: true, 216: true, 300: true, 312: true, 313: true,
 }
 
 // TestSpecConformance is the differential conformance gate against the canonical
