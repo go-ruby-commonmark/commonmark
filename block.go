@@ -189,23 +189,35 @@ func (p *parser) incorporateLine(line []byte) {
 
 	p.closeUnmatchedBlocks()
 
-	switch container.Type {
-	case CodeBlock:
+	// Record a blank line against the last child of the current container.
+	if p.blank && container.LastChild != nil {
+		container.LastChild.lastLineBlank = true
+	}
+
+	// Compute whether this line counts as a trailing blank for the container,
+	// then propagate it up the ancestor chain (resetting to false on non-blank
+	// lines). A block quote, a fenced code block, and an empty list item created
+	// on this very line do not treat their blank line as list-loosening.
+	t := container.Type
+	lastLineBlank := p.blank &&
+		!(t == BlockQuote ||
+			(t == CodeBlock && container.fenced) ||
+			(t == Item && container.FirstChild == nil && container.sourceLine == p.lineNumber))
+	for cont := container; cont != nil; cont = cont.Parent {
+		cont.lastLineBlank = lastLineBlank
+	}
+
+	switch {
+	case acceptsLines(t):
 		p.addLine()
-	case HTMLBlock:
-		p.addLine()
-		p.checkHTMLBlockEnd(container)
-	default:
-		if p.blank {
-			container.lastLineBlank = true
-		} else if acceptsLines(container.Type) {
-			p.addLine()
-		} else if container.Type != ThematicBreak && container.Type != Heading {
-			// Create a paragraph to hold the text.
-			container = p.addChild(Paragraph, p.offset)
-			p.advanceNextNonspace()
-			p.addLine()
+		if t == HTMLBlock {
+			p.checkHTMLBlockEnd(container)
 		}
+	case p.offset < len(p.line) && !p.blank:
+		// Create a paragraph to hold the remaining text.
+		container = p.addChild(Paragraph, p.offset)
+		p.advanceNextNonspace()
+		p.addLine()
 	}
 	p.tip = container
 }
@@ -587,9 +599,13 @@ func endsWithBlankLine(block *Node) bool {
 		if block.lastLineBlank {
 			return true
 		}
-		if block.Type == List || block.Type == Item {
+		// Memoise so a blank line deep in one subtree is not counted for
+		// multiple ancestors on repeated finalizeList walks.
+		if !block.lastLineChecked && (block.Type == List || block.Type == Item) {
+			block.lastLineChecked = true
 			block = block.LastChild
 		} else {
+			block.lastLineChecked = true
 			return false
 		}
 	}
