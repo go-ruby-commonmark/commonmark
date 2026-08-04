@@ -86,12 +86,12 @@ func unescapeArrows(s string) string {
 // the entry must be removed here — the set only ever shrinks. Baseline captured
 // 2026-08-03 against CommonMark spec v0.31.2: 593/652 pass (90.95%). Ratcheted
 // 2026-08-04 to 621/652 (95.25%) after fixing loose/tight list detection
-// (lastLineBlank propagation up the ancestor chain). Residual gaps concentrate
-// in HTML blocks (12/44) and Emphasis (12/132).
+// (lastLineBlank propagation up the ancestor chain), then to 635/652 (97.39%)
+// after making block finalize idempotent so a type-1..5 HTML block closed
+// mid-document is not re-finalized (which had clobbered its Literal). Residual
+// gaps concentrate in Emphasis (12/132), plus a few list-indent edge cases.
 var specKnownFailing = map[int]bool{
-	169: true, 170: true, 171: true, 172: true, 176: true, 177: true, 178: true,
-	179: true, 180: true, 181: true, 182: true, 183: true, 215: true, 216: true,
-	300: true, 308: true, 309: true, 312: true, 313: true, 409: true, 414: true,
+	215: true, 216: true, 300: true, 312: true, 313: true, 409: true, 414: true,
 	415: true, 416: true, 417: true, 427: true, 431: true, 464: true, 465: true,
 	466: true, 467: true, 468: true,
 }
