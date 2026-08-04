@@ -91,10 +91,12 @@ func unescapeArrows(s string) string {
 // mid-document is not re-finalized (which had clobbered its Literal), then to
 // 647/652 (99.23%) after fixing delimiter-run emphasis: a closer that still
 // carries delimiters after forming a span is now reused to match a further
-// opener (e.g. ***foo*** -> <em><strong>). Residual gaps: link-reference
-// normalization (215, 216) and list-marker-indent edge cases (300, 312, 313).
+// opener (e.g. ***foo*** -> <em><strong>). Then to 649/652 (99.54%) after the
+// setext-underline matcher resolves leading link reference definitions and
+// declines to form a heading from a paragraph that was only definitions (215,
+// 216). Residual gaps: list-marker-indent edge cases (300, 312, 313).
 var specKnownFailing = map[int]bool{
-	215: true, 216: true, 300: true, 312: true, 313: true,
+	300: true, 312: true, 313: true,
 }
 
 // TestSpecConformance is the differential conformance gate against the canonical
