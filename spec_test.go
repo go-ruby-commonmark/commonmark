@@ -84,17 +84,14 @@ func unescapeArrows(s string) string {
 // must pass (TestSpecConformance is a hard CI gate), so no change may introduce
 // a new incompatibility. When a listed example is fixed, the test flags it and
 // the entry must be removed here — the set only ever shrinks. Baseline captured
-// 2026-08-03 against CommonMark spec v0.31.2: 593/652 pass (90.95%), 59 known
-// gaps, concentrated in List items (21/48), HTML blocks (12/44), Emphasis
-// (12/132) and Lists (8/26). See PR "gate CI on the CommonMark spec.txt".
+// 2026-08-03 against CommonMark spec v0.31.2: 593/652 pass (90.95%). Ratcheted
+// 2026-08-04 to 621/652 (95.25%) after fixing loose/tight list detection
+// (lastLineBlank propagation up the ancestor chain). Residual gaps concentrate
+// in HTML blocks (12/44) and Emphasis (12/132).
 var specKnownFailing = map[int]bool{
-	4: true, 5: true, 108: true, 109: true, 169: true, 170: true, 171: true,
-	172: true, 176: true, 177: true, 178: true, 179: true, 180: true, 181: true,
-	182: true, 183: true, 215: true, 216: true, 254: true, 256: true, 258: true,
-	259: true, 262: true, 263: true, 264: true, 270: true, 271: true, 273: true,
-	274: true, 277: true, 278: true, 281: true, 282: true, 283: true, 286: true,
-	287: true, 288: true, 290: true, 300: true, 307: true, 308: true, 309: true,
-	312: true, 313: true, 319: true, 320: true, 324: true, 409: true, 414: true,
+	169: true, 170: true, 171: true, 172: true, 176: true, 177: true, 178: true,
+	179: true, 180: true, 181: true, 182: true, 183: true, 215: true, 216: true,
+	300: true, 308: true, 309: true, 312: true, 313: true, 409: true, 414: true,
 	415: true, 416: true, 417: true, 427: true, 431: true, 464: true, 465: true,
 	466: true, 467: true, 468: true,
 }
