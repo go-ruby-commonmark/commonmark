@@ -1,3 +1,11 @@
+> [!WARNING]
+> **DEPRECATED — this repository is a stale duplicate, kept in place (not archived) for reference.**
+>
+> The maintained source of truth is **[github.com/go-commonmark/commonmark](https://github.com/go-commonmark/commonmark)**.
+> All consumers (rbgo, jekyll, wasmbox) depend on `github.com/go-commonmark/commonmark`; do not add new dependencies on this `go-ruby-commonmark` path.
+
+---
+
 <p align="center"><img src="https://raw.githubusercontent.com/go-ruby-commonmark/brand/main/social/go-ruby-commonmark-commonmark.png" alt="go-ruby-commonmark/commonmark" width="720"></p>
 
 # commonmark — go-ruby-commonmark
